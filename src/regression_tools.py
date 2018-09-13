@@ -10,6 +10,7 @@ def derivative_func(data_x, data_y, theta, theta_number):
 	summ = 0
 
 	for i, x in enumerate(data_x):
+		print(x[theta_number])
 		summ += (hipothesis(theta, x) - data_y[i]) * x[theta_number]
 	return (1 / len(data_x)) * summ
 
@@ -17,23 +18,28 @@ def precision_summ(data_x, data_y, theta):
 	summ = 0
 
 	for i, x in enumerate(data_x):
-		summ += (hipothesis(theta, x) - data_y[i]) ** 2
+		summ += (hipothesis(theta, x) - data_y[i])
+
+	summ = summ ** 2
 	return (1 / (2 * len(data_x))) * summ
 
 def run_regression(data, theta):
 	validated = parse_array(data, len(theta))
 	data_x = validated[0]
 	data_y = validated[1]
-	precision = precision_summ(data_x, data_y, theta)
-	alpha = 0.3
-	iterator = 0
+	summPrevJ = 0
+	summNextJ = precision_summ(data_x, data_y, theta)
+	alpha = 0.04
 
-	while (condition(theta, precision)):
+	while (summPrevJ >= summNextJ or summPrevJ == 0):
+		summPrevJ = summNextJ
+		summNextJ = 0
 		theta_copy = theta[:]
 
 		for i, t in enumerate(theta_copy):
 			J = derivative_func(data_x, data_y, theta, i)
 			theta_copy[i] = theta[i] - alpha * J
+			summNextJ += J
 
 		theta = theta_copy[:]
 		summNextJ = precision_summ(data_x, data_y, theta)
@@ -41,17 +47,17 @@ def run_regression(data, theta):
 	return theta
 
 def feature_scaling(data_x, data_y):
-	max_array = max(max(data_x))
+	max_array = max(max(data_x)) if (type(data_x[0]) is list) else max(data_x)
 	max_y = max(data_y)
 	max_f = max_y if (max_y > max_array) else max_array
 
 	for i, x_i in enumerate(data_x):
 		data_y[i] = data_y[i] / max_f
-		for j in range(1, len(x_i)):
-			data_x[i][j] = data_x[i][j] / max_f
-
-def condition(theta, precision):
-	
+		if (type(x_i) is list):
+			for j in range(1, len(x_i)):
+				data_x[i][j] = data_x[i][j] / max_f
+		else:
+			data_x[i] = data_x[i] / max_f
 
 def parse_array(data, size):
 	data_y = []
@@ -68,8 +74,8 @@ def parse_array(data, size):
 			if (None in row):
 				print('Warning! Data row - ', row, ' has non-number values! Deleted from dataset', sep='')
 			else:
-				data_y.append(row.pop())
-				data_x.append([1] + row)
+				data_y.append(row[-1])
+				data_x.append([1] + row[:-1])
 
 	feature_scaling(data_x, data_y)
 
