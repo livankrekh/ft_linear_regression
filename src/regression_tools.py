@@ -1,4 +1,4 @@
-def hipothesis(theta, features):
+def hypothesis(theta, features):
 	res = 0
 
 	for i, x in enumerate(features):
@@ -10,28 +10,26 @@ def derivative_func(data_x, data_y, theta, theta_number):
 	summ = 0
 
 	for i, x in enumerate(data_x):
-		print(x[theta_number])
-		summ += (hipothesis(theta, x) - data_y[i]) * x[theta_number]
+		summ += (hypothesis(theta, x) - data_y[i]) * x[theta_number]
 	return (1 / len(data_x)) * summ
 
 def precision_summ(data_x, data_y, theta):
 	summ = 0
 
 	for i, x in enumerate(data_x):
-		summ += (hipothesis(theta, x) - data_y[i])
+		summ += (hypothesis(theta, x) - data_y[i]) ** 2
 
-	summ = summ ** 2
 	return (1 / (2 * len(data_x))) * summ
 
-def run_regression(data, theta):
+def run_regression(data, theta, alpha, J_all):
 	validated = parse_array(data, len(theta))
 	data_x = validated[0]
 	data_y = validated[1]
 	summPrevJ = 0
 	summNextJ = precision_summ(data_x, data_y, theta)
-	alpha = 0.04
+	J_all.append(summNextJ)
 
-	while (summPrevJ >= summNextJ or summPrevJ == 0):
+	while (abs(summPrevJ) >= abs(summNextJ) or summPrevJ == 0):
 		summPrevJ = summNextJ
 		summNextJ = 0
 		theta_copy = theta[:]
@@ -39,10 +37,10 @@ def run_regression(data, theta):
 		for i, t in enumerate(theta_copy):
 			J = derivative_func(data_x, data_y, theta, i)
 			theta_copy[i] = theta[i] - alpha * J
-			summNextJ += J
 
 		theta = theta_copy[:]
 		summNextJ = precision_summ(data_x, data_y, theta)
+		J_all.append(summNextJ)
 
 	return theta
 
