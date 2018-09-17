@@ -42,8 +42,11 @@ if __name__ == "__main__":
 		print("\033[1m\033[31mUnknown error:", err, "\033[0m")
 		exit()
 
-	if (flags[2] and len(theta) == 2):
+	if (flags[2]):
 		try:
 			vizualize(data_for_viz, theta, J_all, names)
 		except UnicodeDecodeError:
 			print("\033[1m\033[31mWarning! Catched error from matplotlib (franework bug in MacOS). Please, don't use scroll on graphs\033[0m")
+		except KeyboardInterrupt:
+			print("\n\033[1mStop vizualize! Exit!\033[0m")
+			exit()

@@ -16,6 +16,8 @@ import os
 def parse_args(args):
 	res = ["", 0.1, False, -1, False]
 
+	args = args[1:]
+
 	for arg in args:
 		if (arg.find("--alpha=") != -1):
 			arg = arg.replace("--alpha=", '')
@@ -81,12 +83,13 @@ def vizualize(data, theta, J_all, names):
 	figure = plt.figure()
 	grid = gridspec.GridSpec(ncols=2, nrows=2)
 	first = figure.add_subplot(grid[0, 0:])
-	second = figure.add_subplot(grid[1, 0:])
+	second = figure.add_subplot(grid[1, 0:] if (len(theta) == 2) else grid[0:, 0:])
 
-	first.plot(t, t * theta[1] + theta[0])
-	first.plot(new_data[0], new_data[1], 'ro')
-	first.grid(True)
-	first.set_title("Model view")
+	if (len(theta) == 2):
+		first.plot(t, t * theta[1] + theta[0])
+		first.plot(new_data[0], new_data[1], 'ro')
+		first.grid(True)
+		first.set_title("Model view")
 
 	second.plot(x, J_all, 'ro')
 	second.grid(True)
